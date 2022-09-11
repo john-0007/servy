@@ -1,5 +1,5 @@
 defmodule Servy.Handle do
-  alias Servy.Conv
+  alias Servy.{Conv, BearController}
   import Servy.Plugins, only: [rewrite_path: 1]
   import Servy.Parser, only: [parse: 1]
 
@@ -18,15 +18,16 @@ defmodule Servy.Handle do
   end
 
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
-    %{conv | status: 200, resp_body: "Teddy, Smokey, Paddington"}
+    BearController.index(conv)
   end
 
-  def route(%Conv{method: "POST", path: "/beas"} = conv) do
-    %{conv | status: 201, resp_body: "Create a #{conv.params["type"]} bear named #{conv.params["name"]"}
+  def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
+    params = Map.put(conv.params, "id", id)
+    BearController.show(conv, params)
   end
 
-  def route(%Conv{method: "GET", path: "/bear" <> id} = conv) do
-    %{conv | status: 200, resp_body: "bear #{id}"}
+  def route(%Conv{method: "POST", path: "/bear"} = conv) do
+    BearController.create(conv, conv.params)
   end
 
   def route(%Conv{method: "GET", path: "/bear/new"} = conv) do
